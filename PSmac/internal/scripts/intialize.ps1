@@ -11,6 +11,13 @@ else {
 	if (Get-Item -Path /opt/homebrew/bin/brew -ErrorAction SilentlyContinue) {
 		/opt/homebrew/bin/brew shellenv | Invoke-Expression
 	}
+	
+    # Initialize Powershell completions from brew if they exist.
+    if ((Get-Command brew -ErrorAction SilentlyContinue) -and (Test-Path ($completions = "$(brew --prefix)/share/pwsh/completions"))) {
+        foreach ($f in Get-ChildItem -Path $completions -File) {
+            . $f
+        }
+    }
 }
 
 
