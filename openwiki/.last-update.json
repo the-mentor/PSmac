@@ -1,0 +1,12 @@
+{
+  "mode": "code",
+  "run": "init",
+  "timestamp": "2026-03-16T00:00:00Z",
+  "pages": [
+    "quickstart.md",
+    "architecture.md",
+    "functions.md",
+    "ci-testing.md"
+  ],
+  "notes": "Init run. Existing quickstart/architecture/functions verified against source. Created missing ci-testing.md (previously a broken link target). Surfaced that CI validate step has Pester commented out."
+}
