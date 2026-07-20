@@ -1,3 +1,3 @@
 function Get-MacOSProcessName {
-    (Get-Process).Name
+    (Get-Process).Name | Where-Object { $_ }
 }
