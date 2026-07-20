@@ -2,15 +2,14 @@
 	param(
 		[Parameter(Mandatory, Position = 0)]
 		[ValidateScript(
-			{ $_ -in (Get-Process).Name },
+			{ $_ -in (Get-MacOSProcessName) },
 			ErrorMessage = 'Please specify the name of a subdirectory in the current directory.'
 		)]
 		[ArgumentCompleter(
 			{
 				param($cmd, $param, $wordToComplete)
-				# This is the duplicated part of the code in the [ValidateScipt] attribute.
-				[array] $validValues = (Get-Process).Name
-				$validValues -like "$wordToComplete*"
+				[array] $validValues = Get-MacOSProcessName
+				$validValues -like "$wordToComplete*" | Format-MacOSAppCompletion
 			}
 		)]
 		[String]$AppName
