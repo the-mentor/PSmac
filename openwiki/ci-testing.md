@@ -1,23 +1,24 @@
 ---
 type: CI & Testing
 title: PSmac CI & Testing
-description: PSmac uses GitHub Actions (build.yml on push, validate.yml on PR) and a PSFramework-style Pester suite covering file integrity, manifest validity, help quality, and PSScriptAnalyzer rules, with a banned-commands policy enforced during file-integrity checks.
+description: PSmac uses GitHub Actions (build.yml on push, validate.yml on PR, openwiki-update.yml on schedule) and a PSFramework-style Pester suite covering file integrity, manifest validity, help quality, and PSScriptAnalyzer rules, with a banned-commands policy enforced during file-integrity checks.
 resource: https://github.com/the-mentor/PSmac/tree/main/tests
-tags: [ci, github-actions, pester, psscriptanalyzer, testing]
+tags: [ci, github-actions, pester, psscriptanalyzer, testing, dependabot]
 ---
 
 # CI & Testing
 
-PSmac ships a PSFramework-derived test suite under `tests/` and two GitHub Actions workflows under `.github/workflows/`. Tests validate module hygiene rather than macOS runtime behavior, because CI runs on Windows where the wrapped macOS commands (`open`, `netstat`, `osascript`) are unavailable.
+PSmac ships a PSFramework-derived test suite under `tests/` and three GitHub Actions workflows under `.github/workflows/`. Tests validate module hygiene rather than macOS runtime behavior, because CI runs on Windows where the wrapped macOS commands (`open`, `netstat`, `osascript`) are unavailable.
 
 ## GitHub Actions Workflows
 
-Both workflows run on `windows-latest` and use `pwsh`.
+The two module pipelines run on `windows-latest` and use `pwsh`. A third workflow, `openwiki-update.yml`, runs on `ubuntu-latest` to maintain this documentation.
 
-| Workflow | Trigger | Steps |
+| Workflow | Trigger / Runner | Steps |
 |---|---|---|
-| `build.yml` | push to `master` or `main` | prerequisites → validate → build → publish → release |
-| `validate.yml` | `pull_request` | prerequisites → validate |
+| `build.yml` | push to `master` or `main` / `windows-latest` | prerequisites → validate → build → publish → release |
+| `validate.yml` | `pull_request` / `windows-latest` | prerequisites → validate |
+| `openwiki-update.yml` | schedule (`0 8 * * *`) + `workflow_dispatch` / `ubuntu-latest` | check out → install Node 22 → `npm install --global openwiki` → `openwiki code --update --print` → open a pull request via `peter-evans/create-pull-request` |
 
 ### build.yml
 1. **Install Prerequisites** — `build/psf-prerequisites.ps1`
@@ -35,6 +36,12 @@ Runs only the prerequisites and validate steps on pull requests — no build or 
 > # & "$PSScriptRoot\..\tests\pester.ps1"
 > ```
 > As written, the CI "Validate" step is effectively a no-op — the Pester suite below does **not** run automatically in CI today. Uncomment that line (or wire `tests/pester.ps1` into a workflow step) to actually enforce the tests in CI. This is the highest-value change for anyone hardening the pipeline.
+
+### openwiki-update.yml
+A scheduled documentation maintenance workflow (distinct from the module pipeline) that runs daily at 08:00 UTC on `ubuntu-latest` and on manual dispatch. It installs the `openwiki` npm package globally on Node 22, runs `openwiki code --update --print` against the repo (using the OpenRouter provider and the `z-ai/glm-5.2` model via the `OPENROUTER_API_KEY` secret), and opens a pull request on the `openwiki/update` branch using `peter-evans/create-pull-request`. The PR scope is limited to `openwiki/`, `AGENTS.md`, and `CLAUDE.md`. This workflow is what produces the wiki you are reading.
+
+### Dependabot
+`.github/dependabot.yml` (v2 config) schedules **weekly** updates for the `github-actions` ecosystem, keeping the third-party action versions pinned in the workflows current. All three workflows pin `actions/checkout` to a specific commit SHA (`3d3c42e5aac5ba805825da76410c181273ba90b1`, tagged `v7.0.1`); `openwiki-update.yml` additionally pins `actions/setup-node` (`v7.0.0`) and `peter-evans/create-pull-request` (`v8.1.1`).
 
 ## Build Prerequisites
 
@@ -88,7 +95,7 @@ Per-file exceptions live in `$global:MayContainCommand`; e.g. `Invoke-Expression
 
 ## Function Tests
 
-`tests/functions/` currently contains only a README — there are **no unit/integration tests for the seven cmdlets** yet. Function-level tests would need to mock or run on macOS since the [public functions](functions.md) shell out to native macOS tools.
+`tests/functions/` currently contains only a README — there are **no unit/integration tests for the six cmdlets** yet. Function-level tests would need to mock or run on macOS since the [public functions](functions.md) shell out to native macOS tools.
 
 ## Relationship to Build & Functions
 
