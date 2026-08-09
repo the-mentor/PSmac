@@ -29,8 +29,7 @@ Install-Module -Name 'PSmac' -Scope CurrentUser
 
 | Command | Description |
 |---|---|
-| `Get-MacOSApp` | Lists `.app` bundles from `/Applications` and `~/Applications`, optionally filtered by name |
-| `Start-MacOSApp` | Launches an app by name using `open -a` |
+| `Start-MacOSApp` | Launches an app by name using `open -a` (validates against installed `.app` bundles) |
 | `Stop-MacOSApp` | Stops a running process by name |
 | `Restart-MacOSApp` | Stops then relaunches an app (stop → 1s sleep → open) |
 | `Get-MacOSNetworkInfo` | Parses `netstat -in` into structured objects (interface, MTU, packets, errors) |
@@ -45,7 +44,7 @@ The module uses a dot-sourcing loader (`PSmac.psm1`) that imports internal funct
 
 ## CI and Testing
 
-PSmac uses a PSFramework-based build pipeline with Pester tests for file integrity, manifest validation, help quality, and PSScriptAnalyzer rule compliance. CI runs on `windows-latest` with two workflows: `build.yml` (push to main/master) and `validate.yml` (pull requests). The [CI & Testing page](ci-testing.md) covers the pipeline steps, test categories, and the banned-commands policy. Note that the CI validate step currently has its Pester call commented out, so the suite runs locally only — see [CI & Testing](ci-testing.md) for details.
+PSmac uses a PSFramework-based build pipeline with Pester tests for file integrity, manifest validation, help quality, and PSScriptAnalyzer rule compliance. Module CI runs on `windows-latest` with two workflows: `build.yml` (push to main/master) and `validate.yml` (pull requests). A third workflow, `openwiki-update.yml`, runs daily on `ubuntu-latest` to maintain this wiki via a pull request. The [CI & Testing page](ci-testing.md) covers the pipeline steps, test categories, the banned-commands policy, and the pinned GitHub Actions. Note that the CI validate step currently has its Pester call commented out, so the suite runs locally only — see [CI & Testing](ci-testing.md) for details.
 
 ## Backlog
 

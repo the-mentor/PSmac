@@ -1,40 +1,25 @@
 ---
 type: Function Reference
 title: PSmac Public Functions
-description: Reference for all seven exported PSmac cmdlets — app lifecycle (Get/Start/Stop/Restart-MacOSApp), network info (Get-MacOSNetworkInfo, Get-MacOSRoutingInfo), and system utility (Empty-MacOSTrash) — including parameters, validation, and the shared argument-completer pattern.
+description: Reference for all six exported PSmac cmdlets — app lifecycle (Start/Stop/Restart-MacOSApp), network info (Get-MacOSNetworkInfo, Get-MacOSRoutingInfo), and system utility (Empty-MacOSTrash) — including parameters, validation, and the shared argument-completer pattern.
 resource: https://github.com/the-mentor/PSmac/tree/main/PSmac/functions
 tags: [powershell, cmdlets, macos, argument-completer]
 ---
 
 # Public Functions
 
-PSmac exports seven functions from `PSmac/functions/`. Each function lives in its own `.ps1` file named after the function. All functions follow a shared pattern of `[ValidateScript]` + `[ArgumentCompleter]` for tab-completion and input validation.
+PSmac exports six functions from `PSmac/functions/`. Each function lives in its own `.ps1` file named after the function. The app-lifecycle functions (`Start-MacOSApp`, `Stop-MacOSApp`, `Restart-MacOSApp`) follow a shared pattern of `[ValidateScript]` + `[ArgumentCompleter]` for tab-completion and input validation; the network and utility functions take no parameters.
 
 ## App Lifecycle Functions
 
-These four functions form a lifecycle group: `Get-MacOSApp` discovers installed apps, `Start-MacOSApp` launches them, `Stop-MacOSApp` terminates running processes, and `Restart-MacOSApp` combines stop+start.
-
-### Get-MacOSApp
-
-Lists `.app` bundles from `/Applications` and `~/Applications`.
-
-- **Parameter:** `-AppName` (optional, positional) — filter by app name (without `.app` extension)
-- **Validation:** `[ValidateScript]` checks the name exists in the discovered `.app` list
-- **Tab completion:** `[ArgumentCompleter]` lists all `.app` names matching the typed prefix, quoting names with spaces
-- **Output:** Custom objects with `Name` (extension stripped) and `FullName` properties
-- **Source:** `PSmac/functions/Get-MacOSApp.ps1`
-
-```powershell
-Get-MacOSApp                    # List all installed apps
-Get-MacOSApp -AppName Safari    # Get a specific app
-```
+These three functions form a lifecycle group: `Start-MacOSApp` launches an installed app, `Stop-MacOSApp` terminates a running process, and `Restart-MacOSApp` combines stop+start. There is no `Get-MacOSApp` cmdlet — app discovery is performed inline within the `Start-MacOSApp` validation/completion script blocks (see [Shared Argument-Completer Pattern](#shared-argument-completer-pattern)).
 
 ### Start-MacOSApp
 
 Launches an application using the macOS `open -a` command.
 
 - **Parameter:** `-AppName` (mandatory, positional) — app name to launch
-- **Validation:** Same `[ValidateScript]` pattern as `Get-MacOSApp` — must exist in `/Applications` or `~/Applications`
+- **Validation:** `[ValidateScript]` checks the name exists in the `.app` files discovered under `/Applications` and `~/Applications` (extension stripped)
 - **Tab completion:** Lists installed `.app` names matching the prefix
 - **Behavior:** Calls `open -a "$AppName"`
 - **Source:** `PSmac/functions/Start-MacOSApp.ps1`

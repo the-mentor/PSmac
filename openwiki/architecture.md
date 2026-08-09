@@ -13,7 +13,7 @@ tags: [powershell, module-loader, build, psframework]
 In the source tree, `PSmac/PSmac.psm1` is a dot-sourcing loader that imports files in a specific order:
 
 1. **Internal functions** — `PSmac/internal/functions/*.ps1` (currently empty; reserved for non-exported helpers)
-2. **Public functions** — `PSmac/functions/*.ps1` (the seven exported cmdlets)
+2. **Public functions** — `PSmac/functions/*.ps1` (the six exported cmdlets)
 3. **Initialization scripts** — `PSmac/internal/scripts/*.ps1`
 
 ```
@@ -21,7 +21,6 @@ PSmac/
 ├── PSmac.psd1                    # Module manifest
 ├── PSmac.psm1                    # Dot-sourcing loader
 ├── functions/                    # Public functions (exported)
-│   ├── Get-MacOSApp.ps1
 │   ├── Start-MacOSApp.ps1
 │   ├── Stop-MacOSApp.ps1
 │   ├── Restart-MacOSApp.ps1
